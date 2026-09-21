@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Miauberto Market & POS</title>
+    <title>Miauberto Market & POS Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -48,6 +48,9 @@
                 </button>
                 <button onclick="switchTab('publish')" id="tab-publish-btn" class="nav-tab seller-only hidden px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition">
                     <i class="fa-solid fa-plus-circle"></i> <span>Publicar</span>
+                </button>
+                <button onclick="switchTab('admin')" id="tab-admin-btn" class="nav-tab admin-only hidden px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition text-amber-400">
+                    <i class="fa-solid fa-user-shield"></i> <span class="hidden sm:inline">Vendedores</span>
                 </button>
                 <button onclick="switchTab('cart')" id="tab-cart-btn" class="nav-tab px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition relative">
                     <i class="fa-solid fa-cart-shopping text-blue-400"></i> <span>Carrito</span>
@@ -105,10 +108,10 @@
                     <input type="password" id="reg-password" required minlength="6" placeholder="••••••••" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs focus:outline-none focus:border-blue-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Tipo de Usuario *</label>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Solicitar Cuenta de *</label>
                     <select id="reg-role" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs focus:outline-none focus:border-blue-500 text-slate-200">
-                        <option value="buyer">🛒 Comprador (Ver y comprar productos)</option>
-                        <option value="seller">🏪 Vendedor / Admin (Publicar y vender productos)</option>
+                        <option value="buyer">🛒 Comprador (Inmediato)</option>
+                        <option value="seller">🏪 Vendedor (Sujeto a aprobación de Administrador)</option>
                     </select>
                 </div>
                 <button type="submit" id="reg-submit-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl text-xs tracking-wider uppercase transition shadow-lg">
@@ -158,8 +161,8 @@
                         <i class="fa-solid fa-box-open"></i>
                     </div>
                     <div>
-                        <h2 class="text-lg font-bold text-slate-100">Publicar Nuevo Artículo en Firestore</h2>
-                        <p class="text-xs text-slate-400">Sincronización automática a todos los usuarios</p>
+                        <h2 class="text-lg font-bold text-slate-100">Publicar Nuevo Artículo</h2>
+                        <p class="text-xs text-slate-400">Publicación verificada por Vendedor Autorizado</p>
                     </div>
                 </div>
 
@@ -208,7 +211,25 @@
             </div>
         </section>
 
-        <!-- 3. CARRITO & CHECKOUT -->
+        <!-- 3. PANEL DE ADMINISTRADOR (SOLO ADMIN) -->
+        <section id="tab-admin" class="tab-content hidden max-w-4xl mx-auto space-y-4">
+            <div class="bg-miauberto-card p-6 rounded-2xl border border-slate-800 shadow-xl">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-4 mb-4">
+                    <div>
+                        <h2 class="text-base font-bold text-amber-400 flex items-center gap-2">
+                            <i class="fa-solid fa-user-shield"></i> Panel de Control de Vendedores
+                        </h2>
+                        <p class="text-xs text-slate-400">Aprueba o rechaza solicitudes de cuentas de vendedor</p>
+                    </div>
+                </div>
+
+                <div id="sellers-approval-list" class="space-y-3">
+                    <!-- Se carga dinámicamente -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. CARRITO & CHECKOUT -->
         <section id="tab-cart" class="tab-content hidden max-w-3xl mx-auto">
             <div class="bg-miauberto-card p-6 rounded-2xl border border-slate-800 shadow-xl space-y-6">
                 <div class="flex justify-between items-center border-b border-slate-800 pb-4">
@@ -262,21 +283,12 @@
         </div>
     </div>
 
-    <!-- MODAL DETALLE -->
-    <div id="modal-detail" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-miauberto-card border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
-            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-            <div id="modal-content"></div>
-        </div>
-    </div>
-
     <!-- SCRIPT DE FIREBASE MÓDULO -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Credenciales extraídas de tu consola de Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyCCXC6F5U7jCo3Jgg2ukPwK4Pk5zUsJyZk",
             authDomain: "miauberto-pos.firebaseapp.com",
@@ -290,33 +302,47 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // Cuentas administradoras principales y de respaldo
+        const ADMIN_EMAILS = ["admin@miauberto.com", "backup.admin@miauberto.com"];
+
         let currentUserData = null;
         let products = [];
+        let allUsers = [];
         let cart = JSON.parse(localStorage.getItem('miauberto_cart')) || [];
         let selectedCategory = 'Todas';
 
-        // Escuchador de sesión en tiempo real
         onAuthStateChanged(auth, async (user) => {
             if (user) {
+                const isAdmin = ADMIN_EMAILS.includes(user.email.toLowerCase());
                 const userDoc = await getDoc(doc(db, "users", user.uid));
+                
                 if (userDoc.exists()) {
-                    currentUserData = { uid: user.uid, ...userDoc.data() };
+                    currentUserData = { uid: user.uid, ...userDoc.data(), role: isAdmin ? 'admin' : userDoc.data().role };
                 } else {
-                    currentUserData = { uid: user.uid, name: user.email.split('@')[0], role: 'buyer' };
+                    currentUserData = { uid: user.uid, name: user.email.split('@')[0], role: isAdmin ? 'admin' : 'buyer', status: 'approved' };
+                    await setDoc(doc(db, "users", user.uid), currentUserData);
                 }
+
                 showAppUI();
                 listenToProducts();
+                if (currentUserData.role === 'admin') listenToUsers();
             } else {
                 currentUserData = null;
                 showAuthUI();
             }
         });
 
-        // Escuchar catálogo en Firestore en tiempo real
         function listenToProducts() {
             onSnapshot(collection(db, "products"), (snapshot) => {
                 products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 filterAndRenderProducts();
+            });
+        }
+
+        function listenToUsers() {
+            onSnapshot(collection(db, "users"), (snapshot) => {
+                allUsers = snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() }));
+                renderSellersApprovalList();
             });
         }
 
@@ -342,15 +368,22 @@
             const name = document.getElementById('reg-name').value.trim();
             const email = document.getElementById('reg-email').value.trim();
             const pass = document.getElementById('reg-password').value;
-            const role = document.getElementById('reg-role').value;
+            const requestedRole = document.getElementById('reg-role').value;
             const btn = document.getElementById('reg-submit-btn');
+
+            const isAdmin = ADMIN_EMAILS.includes(email.toLowerCase());
+            const finalRole = isAdmin ? 'admin' : requestedRole;
+            const finalStatus = (finalRole === 'seller') ? 'pending' : 'approved';
 
             try {
                 btn.innerText = "Creando cuenta...";
                 const res = await createUserWithEmailAndPassword(auth, email, pass);
                 await setDoc(doc(db, "users", res.user.uid), {
-                    name, email, role, createdAt: new Date()
+                    name, email, role: finalRole, status: finalStatus, createdAt: new Date()
                 });
+                if (finalStatus === 'pending') {
+                    alert('¡Cuenta registrada! Tu solicitud de vendedor está pendiente de aprobación por el Administrador.');
+                }
             } catch (err) {
                 alert("Error al registrarse: " + err.message);
             } finally {
@@ -366,10 +399,19 @@
             document.getElementById('auth-section').classList.add('hidden');
             document.getElementById('app-content').classList.remove('hidden');
             document.getElementById('main-nav').classList.remove('hidden');
-            document.getElementById('user-display-name').innerText = `Hola, ${currentUserData.name}`;
+            document.getElementById('user-display-name').innerText = `${currentUserData.name} (${currentUserData.role.toUpperCase()})`;
 
+            // Control de pestañas según rol y aprobación
             document.querySelectorAll('.seller-only').forEach(el => {
-                if (currentUserData.role === 'seller') el.classList.remove('hidden');
+                if ((currentUserData.role === 'seller' && currentUserData.status === 'approved') || currentUserData.role === 'admin') {
+                    el.classList.remove('hidden');
+                } else {
+                    el.classList.add('hidden');
+                }
+            });
+
+            document.querySelectorAll('.admin-only').forEach(el => {
+                if (currentUserData.role === 'admin') el.classList.remove('hidden');
                 else el.classList.add('hidden');
             });
 
@@ -384,9 +426,51 @@
             document.getElementById('auth-section').classList.remove('hidden');
         }
 
+        /* --- APROBACIÓN DE VENDEDORES (ADMIN) --- */
+        function renderSellersApprovalList() {
+            const container = document.getElementById('sellers-approval-list');
+            if (!container) return;
+
+            const sellers = allUsers.filter(u => u.role === 'seller');
+            if (sellers.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">No hay solicitudes de vendedores registradas.</p>`;
+                return;
+            }
+
+            container.innerHTML = sellers.map(u => `
+                <div class="flex items-center justify-between bg-slate-900/90 p-3.5 rounded-xl border border-slate-800 text-xs">
+                    <div>
+                        <h4 class="font-bold text-slate-200">${u.name}</h4>
+                        <p class="text-slate-400 text-[11px]">${u.email}</p>
+                        <span class="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${u.status === 'approved' ? 'bg-emerald-900/60 text-emerald-300 border border-emerald-700' : 'bg-amber-900/60 text-amber-300 border border-amber-700'}">
+                            ${u.status === 'approved' ? 'Aprobado' : 'Pendiente de Aprobación'}
+                        </span>
+                    </div>
+                    <div class="flex gap-2">
+                        ${u.status !== 'approved' ? `<button onclick="updateUserStatus('${u.uid}', 'approved')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-xl transition">Aprobar</button>` : ''}
+                        ${u.status === 'approved' ? `<button onclick="updateUserStatus('${u.uid}', 'pending')" class="bg-amber-600 hover:bg-amber-500 text-white font-bold px-3 py-1.5 rounded-xl transition">Pausar</button>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.updateUserStatus = async function(uid, status) {
+            try {
+                await updateDoc(doc(db, "users", uid), { status: status });
+                alert(`Estado del vendedor actualizado a: ${status}`);
+            } catch (err) {
+                alert("Error al actualizar estado: " + err.message);
+            }
+        };
+
         /* --- PUBLICACIÓN EN FIRESTORE --- */
         window.handlePublish = async function(e) {
             e.preventDefault();
+            if (currentUserData.role === 'seller' && currentUserData.status !== 'approved') {
+                alert('Tu cuenta de vendedor aún está pendiente de aprobación por el Administrador.');
+                return;
+            }
+
             const title = document.getElementById('pub-title').value.trim();
             const price = parseFloat(document.getElementById('pub-price').value);
             const stock = parseInt(document.getElementById('pub-stock').value);
@@ -404,7 +488,7 @@
                     createdAt: new Date()
                 });
                 document.getElementById('publish-form').reset();
-                alert("¡Artículo publicado en la nube de Firestore!");
+                alert("¡Artículo publicado con éxito!");
                 switchTab('explore');
             } catch(err) {
                 alert("Error al publicar: " + err.message);
@@ -413,7 +497,7 @@
             }
         };
 
-        /* --- CARRITO Y PAGO CON FIRESTORE --- */
+        /* --- CARRITO Y PAGO --- */
         window.confirmOrder = async function() {
             const btn = document.getElementById('pay-confirm-btn');
             try {
@@ -429,7 +513,7 @@
                 localStorage.removeItem('miauberto_cart');
                 updateCartUI();
                 closePaymentModal();
-                alert('¡Compra completada con éxito! El inventario ha sido actualizado en la nube.');
+                alert('¡Compra completada! El inventario se ha actualizado en la nube.');
                 switchTab('explore');
             } catch(err) {
                 alert("Error al procesar pedido: " + err.message);
