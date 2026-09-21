@@ -43,23 +43,93 @@
             </div>
 
             <!-- Botones de Navegación -->
-            <nav class="flex items-center gap-1 sm:gap-2">
+            <nav id="main-nav" class="hidden flex items-center gap-1 sm:gap-2">
                 <button onclick="switchTab('explore')" id="tab-explore-btn" class="nav-tab active px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition">
                     <i class="fa-solid fa-store"></i> <span class="hidden sm:inline">Mercado</span>
                 </button>
-                <button onclick="switchTab('publish')" id="tab-publish-btn" class="nav-tab px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition">
+                <button onclick="switchTab('publish')" id="tab-publish-btn" class="nav-tab seller-only hidden px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition">
                     <i class="fa-solid fa-plus-circle"></i> <span>Publicar</span>
                 </button>
                 <button onclick="switchTab('pos')" id="tab-pos-btn" class="nav-tab px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition relative">
-                    <i class="fa-solid fa-cash-register"></i> <span class="hidden sm:inline">Caja / Mis Artículos</span>
+                    <i class="fa-solid fa-cart-shopping"></i> <span class="hidden sm:inline">Carrito</span>
                     <span id="cart-badge" class="hidden bg-blue-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full">0</span>
                 </button>
+                
+                <!-- Perfil / Cerrar Sesión -->
+                <div class="flex items-center pl-2 ml-2 border-l border-slate-700 gap-2">
+                    <span id="user-display-name" class="text-xs font-semibold text-slate-300 hidden md:inline"></span>
+                    <button onclick="logout()" title="Cerrar Sesión" class="text-slate-400 hover:text-red-400 p-2 text-xs transition">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
             </nav>
         </div>
     </header>
 
-    <!-- ÁREA DE CONTENIDO -->
-    <main class="flex-1 max-w-6xl w-full mx-auto p-4">
+    <!-- ÁREA DE AUTENTICACIÓN (LOGIN / REGISTRO) -->
+    <section id="auth-section" class="flex-1 flex items-center justify-center p-4">
+        <div class="bg-miauberto-card p-6 sm:p-8 rounded-2xl border border-slate-800 shadow-2xl max-w-md w-full relative">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 rounded-2xl bg-blue-600 flex items-center justify-center text-3xl mx-auto mb-3 border-2 border-blue-400 shadow-lg">
+                    🐱
+                </div>
+                <h2 class="text-xl font-bold text-slate-100" id="auth-title">Iniciar Sesión</h2>
+                <p class="text-xs text-slate-400 mt-1" id="auth-subtitle">Ingresa a Miauberto Market para ver y seleccionar artículos</p>
+            </div>
+
+            <!-- Formulario de Login -->
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Correo Electrónico</label>
+                    <input type="email" id="login-email" required placeholder="tu@correo.com" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs focus:outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Contraseña</label>
+                    <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs focus:outline-none focus:border-blue-500">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl text-xs tracking-wider uppercase transition shadow-lg">
+                    Ingresar al Mercado
+                </button>
+            </form>
+
+            <!-- Formulario de Registro (Oculto por defecto) -->
+            <form id="register-form" onsubmit="handleRegister(event)" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre Completo *</label>
+                    <input type="text" id="reg-name" required placeholder="Ej. Juan Pérez" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs focus:outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Correo Electrónico *</label>
+                    <input type="email" id="reg-email" required placeholder="tu@correo.com" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs focus:outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Contraseña *</label>
+                    <input type="password" id="reg-password" required minlength="4" placeholder="••••••••" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs focus:outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Tipo de Usuario *</label>
+                    <select id="reg-role" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs focus:outline-none focus:border-blue-500 text-slate-200">
+                        <option value="buyer">🛒 Comprador (Ver y comprar productos)</option>
+                        <option value="seller">🏪 Vendedor / Admin (Publicar y vender productos)</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl text-xs tracking-wider uppercase transition shadow-lg">
+                    Crear Cuenta
+                </button>
+            </form>
+
+            <!-- Selector de modo (Login / Registro) -->
+            <div class="mt-6 text-center border-t border-slate-800 pt-4">
+                <p class="text-xs text-slate-400" id="auth-switch-text">
+                    ¿No tienes una cuenta? 
+                    <button onclick="toggleAuthMode('register')" class="text-blue-400 font-bold hover:underline ml-1">Regístrate aquí</button>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ÁREA DE CONTENIDO PRINCIPAL (Protegida por Login) -->
+    <main id="app-content" class="flex-1 max-w-6xl w-full mx-auto p-4 hidden">
 
         <!-- 1. PESTAÑA: EXPLORAR MERCADO (TIPO MERCADO LIBRE) -->
         <section id="tab-explore" class="tab-content space-y-4">
@@ -159,21 +229,19 @@
         </section>
 
 
-        <!-- 3. PESTAÑA: MIS PUBLICACIONES / POS DE COBRO -->
+        <!-- 3. PESTAÑA: CARRITO / POS -->
         <section id="tab-pos" class="tab-content hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            <!-- Gestión de Inventario / Publicaciones -->
-            <div class="lg:col-span-2 space-y-4">
+            <!-- Gestión de Inventario (Solo para Vendedores) -->
+            <div class="lg:col-span-2 space-y-4 seller-only hidden">
                 <div class="bg-miauberto-card p-4 rounded-2xl border border-slate-800 shadow-xl">
                     <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
                         <h2 class="text-sm font-bold text-slate-200 flex items-center gap-2">
                             <i class="fa-solid fa-list-check text-blue-400"></i> Mis Publicaciones & Inventario
                         </h2>
-                        <div class="flex gap-2">
-                            <button onclick="exportJSON()" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700">
-                                <i class="fa-solid fa-download"></i> Exportar
-                            </button>
-                        </div>
+                        <button onclick="exportJSON()" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700">
+                            <i class="fa-solid fa-download"></i> Exportar JSON
+                        </button>
                     </div>
 
                     <div id="my-products-list" class="space-y-3 max-h-[480px] overflow-y-auto pr-1">
@@ -182,13 +250,13 @@
                 </div>
             </div>
 
-            <!-- Carrito y Caja Registradora -->
-            <div class="space-y-4">
+            <!-- Carrito de Compras -->
+            <div class="space-y-4 lg:col-span-1 border-slate-800">
                 <div class="bg-miauberto-card p-5 rounded-2xl border border-slate-800 shadow-xl flex flex-col justify-between h-[480px]">
                     <div>
                         <div class="flex justify-between items-center border-b border-slate-800 pb-3 mb-3">
                             <h2 class="font-bold text-sm text-slate-200 flex items-center gap-2">
-                                <i class="fa-solid fa-cart-shopping text-blue-400"></i> Carrito de Compras
+                                <i class="fa-solid fa-cart-shopping text-blue-400"></i> Tu Carrito
                             </h2>
                             <button onclick="clearCart()" class="text-[10px] text-red-400 hover:text-red-300">Vaciar</button>
                         </div>
@@ -199,18 +267,14 @@
 
                     <div class="border-t border-slate-800 pt-3 space-y-3">
                         <div class="space-y-1 text-xs text-slate-400">
-                            <div class="flex justify-between">
-                                <span>Subtotal</span>
-                                <span id="cart-subtotal">$0.00</span>
-                            </div>
-                            <div class="flex justify-between font-bold text-sm text-slate-100 pt-1 border-t border-slate-800/60">
-                                <span>Total</span>
+                            <div class="flex justify-between font-bold text-sm text-slate-100 pt-1">
+                                <span>Total a pagar</span>
                                 <span id="cart-total" class="text-blue-400">$0.00</span>
                             </div>
                         </div>
 
                         <button onclick="processCheckout()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl shadow-lg transition text-xs tracking-wider uppercase flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-receipt"></i> Completar Compra
+                            <i class="fa-solid fa-receipt"></i> Confirmar Pedido
                         </button>
                     </div>
                 </div>
@@ -229,7 +293,11 @@
 
     <!-- Script de Lógica -->
     <script>
-        // Productos por defecto con la temática de Miauberto
+        // Datos por defecto
+        const defaultUsers = [
+            { email: 'admin@miauberto.com', password: '123', name: 'Miauberto Admin', role: 'seller' }
+        ];
+
         const initialProducts = [
             { id: '1', title: 'Café Espresso Miauberto Nøde', price: 45.00, category: 'Cafetería', stock: 25, active: true, image: 'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?w=400', desc: 'Grano tostado especial selección felina.' },
             { id: '2', title: 'Chaqueta Mezclilla Ruda Custom', price: 850.00, category: 'Ropa y Mezclilla', stock: 5, active: true, image: 'https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=400', desc: 'Chaqueta de mezclilla estilo Nøde ajustada.' },
@@ -237,28 +305,134 @@
             { id: '4', title: 'Taza de Cerámica Nøde Café', price: 150.00, category: 'Accesorios', stock: 30, active: true, image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400', desc: 'Resistente al calor con grabado mate.' }
         ];
 
+        let users = JSON.parse(localStorage.getItem('miauberto_users')) || defaultUsers;
+        let currentUser = JSON.parse(localStorage.getItem('miauberto_current_user')) || null;
         let products = JSON.parse(localStorage.getItem('miauberto_market_products')) || initialProducts;
         let cart = [];
         let selectedCategory = 'Todas';
 
         window.onload = function() {
-            saveProducts();
-            renderCategoryBar();
-            filterAndRenderProducts();
-            renderMyProducts();
+            saveData();
+            checkSession();
         };
 
-        function saveProducts() {
+        function saveData() {
+            localStorage.setItem('miauberto_users', JSON.stringify(users));
             localStorage.setItem('miauberto_market_products', JSON.stringify(products));
         }
 
+        /* --- MANEJO DE SESIONES Y REGISTRO --- */
+        function toggleAuthMode(mode) {
+            const loginForm = document.getElementById('login-form');
+            const regForm = document.getElementById('register-form');
+            const title = document.getElementById('auth-title');
+            const subtitle = document.getElementById('auth-subtitle');
+            const switchText = document.getElementById('auth-switch-text');
+
+            if (mode === 'register') {
+                loginForm.classList.add('hidden');
+                regForm.classList.remove('hidden');
+                title.innerText = 'Crear Cuenta';
+                subtitle.innerText = 'Regístrate para comenzar a seleccionar artículos';
+                switchText.innerHTML = '¿Ya tienes una cuenta? <button onclick="toggleAuthMode(\'login\')" class="text-blue-400 font-bold hover:underline ml-1">Inicia sesión aquí</button>';
+            } else {
+                regForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+                title.innerText = 'Iniciar Sesión';
+                subtitle.innerText = 'Ingresa a Miauberto Market para ver y seleccionar artículos';
+                switchText.innerHTML = '¿No tienes una cuenta? <button onclick="toggleAuthMode(\'register\')" class="text-blue-400 font-bold hover:underline ml-1">Regístrate aquí</button>';
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value.trim();
+            const pass = document.getElementById('login-password').value;
+
+            const user = users.find(u => u.email === email && u.password === pass);
+            if (user) {
+                currentUser = user;
+                localStorage.setItem('miauberto_current_user', JSON.stringify(currentUser));
+                document.getElementById('login-form').reset();
+                checkSession();
+            } else {
+                alert('Correo o contraseña incorrectos.');
+            }
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('reg-name').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const pass = document.getElementById('reg-password').value;
+            const role = document.getElementById('reg-role').value;
+
+            if (users.some(u => u.email === email)) {
+                alert('El correo electrónico ya está registrado.');
+                return;
+            }
+
+            const newUser = { name, email, password: pass, role };
+            users.push(newUser);
+            currentUser = newUser;
+            
+            saveData();
+            localStorage.setItem('miauberto_current_user', JSON.stringify(currentUser));
+            document.getElementById('register-form').reset();
+            alert('¡Cuenta creada exitosamente!');
+            checkSession();
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('miauberto_current_user');
+            cart = [];
+            checkSession();
+        }
+
+        function checkSession() {
+            const authSection = document.getElementById('auth-section');
+            const appContent = document.getElementById('app-content');
+            const mainNav = document.getElementById('main-nav');
+            const displayName = document.getElementById('user-display-name');
+
+            if (currentUser) {
+                authSection.classList.add('hidden');
+                appContent.classList.remove('hidden');
+                mainNav.classList.remove('hidden');
+                
+                displayName.innerText = `Hola, ${currentUser.name}`;
+
+                // Aplicar visibilidad de pestañas según rol
+                document.querySelectorAll('.seller-only').forEach(el => {
+                    if (currentUser.role === 'seller') {
+                        el.classList.remove('hidden');
+                    } else {
+                        el.classList.add('hidden');
+                    }
+                });
+
+                renderCategoryBar();
+                filterAndRenderProducts();
+                renderMyProducts();
+                updateCart();
+                switchTab('explore');
+            } else {
+                appContent.classList.add('hidden');
+                mainNav.classList.add('hidden');
+                authSection.classList.remove('hidden');
+                toggleAuthMode('login');
+            }
+        }
+
+        /* --- LÓGICA DEL MERCADO Y NAVEGACIÓN --- */
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active', 'bg-blue-600', 'text-white'));
             
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
             const btn = document.getElementById(`tab-${tabId}-btn`);
-            btn.classList.add('active', 'bg-blue-600', 'text-white');
+            if (btn) btn.classList.add('active', 'bg-blue-600', 'text-white');
         }
 
         function renderCategoryBar() {
@@ -349,7 +523,7 @@
             };
 
             products.unshift(newProduct);
-            saveProducts();
+            saveData();
             document.getElementById('publish-form').reset();
             document.getElementById('pub-img-base64').value = '';
             
@@ -361,6 +535,8 @@
 
         function renderMyProducts() {
             const container = document.getElementById('my-products-list');
+            if (!container) return;
+
             if (products.length === 0) {
                 container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">No tienes artículos registrados.</p>`;
                 return;
@@ -389,7 +565,7 @@
             const p = products.find(item => item.id === id);
             if (p) {
                 p.active = !p.active;
-                saveProducts();
+                saveData();
                 renderMyProducts();
                 filterAndRenderProducts();
             }
@@ -398,7 +574,7 @@
         function deleteProduct(id) {
             if (confirm('¿Eliminar esta publicación del inventario?')) {
                 products = products.filter(p => p.id !== id);
-                saveProducts();
+                saveData();
                 renderMyProducts();
                 filterAndRenderProducts();
             }
@@ -434,7 +610,6 @@
 
             if (cart.length === 0) {
                 container.innerHTML = `<p class="text-slate-500 text-center py-10">El carrito está vacío</p>`;
-                document.getElementById('cart-subtotal').innerText = '$0.00';
                 document.getElementById('cart-total').innerText = '$0.00';
                 return;
             }
@@ -457,7 +632,6 @@
                 `;
             }).join('');
 
-            document.getElementById('cart-subtotal').innerText = `$${total.toFixed(2)}`;
             document.getElementById('cart-total').innerText = `$${total.toFixed(2)}`;
         }
 
@@ -473,7 +647,7 @@
 
         function processCheckout() {
             if (cart.length === 0) {
-                alert('Agrega artículos al carrito antes de cobrar.');
+                alert('Agrega artículos al carrito antes de confirmar el pedido.');
                 return;
             }
 
@@ -482,11 +656,11 @@
                 if (p) p.stock -= item.qty;
             });
 
-            saveProducts();
+            saveData();
             clearCart();
             renderMyProducts();
             filterAndRenderProducts();
-            alert('¡Venta completada con éxito por Miauberto Market!');
+            alert('¡Pedido confirmado con éxito! Gracias por tu compra en Miauberto Market.');
         }
 
         function openDetail(id) {
