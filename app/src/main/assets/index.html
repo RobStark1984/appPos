@@ -36,13 +36,12 @@
                 </div>
                 <div>
                     <h1 class="text-base font-bold tracking-wider text-blue-400 flex items-center gap-1.5">
-                        MIAUBERTO <span class="text-[10px] bg-blue-900/80 text-blue-200 px-2 py-0.5 rounded-full border border-blue-700 font-mono">MARKET</span>
+                        MIAUBERTO <span class="text-[10px] bg-blue-900/80 text-blue-200 px-2 py-0.5 rounded-full border border-blue-700 font-mono">CLOUD MARKET</span>
                     </h1>
-                    <p class="text-[11px] text-slate-400">Punto de Venta y Mercado</p>
+                    <p class="text-[11px] text-slate-400">Punto de Venta e Inventario Firebase</p>
                 </div>
             </div>
 
-            <!-- Botones de Navegación -->
             <nav id="main-nav" class="hidden flex items-center gap-1 sm:gap-2">
                 <button onclick="switchTab('explore')" id="tab-explore-btn" class="nav-tab active px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition">
                     <i class="fa-solid fa-store"></i> <span class="hidden sm:inline">Mercado</span>
@@ -57,7 +56,7 @@
                 
                 <div class="flex items-center pl-2 ml-2 border-l border-slate-700 gap-2">
                     <span id="user-display-name" class="text-xs font-semibold text-slate-300 hidden md:inline"></span>
-                    <button onclick="logout()" title="Cerrar Sesión" class="text-slate-400 hover:text-red-400 p-2 text-xs transition">
+                    <button onclick="handleLogout()" title="Cerrar Sesión" class="text-slate-400 hover:text-red-400 p-2 text-xs transition">
                         <i class="fa-solid fa-right-from-bracket"></i>
                     </button>
                 </div>
@@ -65,7 +64,7 @@
         </div>
     </header>
 
-    <!-- ÁREA DE AUTENTICACIÓN (LOGIN / REGISTRO) -->
+    <!-- ÁREA DE AUTENTICACIÓN -->
     <section id="auth-section" class="flex-1 flex items-center justify-center p-4">
         <div class="bg-miauberto-card p-6 sm:p-8 rounded-2xl border border-slate-800 shadow-2xl max-w-md w-full relative">
             <div class="text-center mb-6">
@@ -73,7 +72,7 @@
                     🐱
                 </div>
                 <h2 class="text-xl font-bold text-slate-100" id="auth-title">Iniciar Sesión</h2>
-                <p class="text-xs text-slate-400 mt-1" id="auth-subtitle">Ingresa a Miauberto Market para ver y seleccionar artículos</p>
+                <p class="text-xs text-slate-400 mt-1" id="auth-subtitle">Ingresa para sincronizar con la nube de Miauberto Market</p>
             </div>
 
             <!-- Login -->
@@ -86,7 +85,7 @@
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Contraseña</label>
                     <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs focus:outline-none focus:border-blue-500">
                 </div>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl text-xs tracking-wider uppercase transition shadow-lg">
+                <button type="submit" id="login-submit-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl text-xs tracking-wider uppercase transition shadow-lg">
                     Ingresar
                 </button>
             </form>
@@ -103,7 +102,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Contraseña *</label>
-                    <input type="password" id="reg-password" required minlength="4" placeholder="••••••••" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs focus:outline-none focus:border-blue-500">
+                    <input type="password" id="reg-password" required minlength="6" placeholder="••••••••" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs focus:outline-none focus:border-blue-500">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Tipo de Usuario *</label>
@@ -112,7 +111,7 @@
                         <option value="seller">🏪 Vendedor / Admin (Publicar y vender productos)</option>
                     </select>
                 </div>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl text-xs tracking-wider uppercase transition shadow-lg">
+                <button type="submit" id="reg-submit-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl text-xs tracking-wider uppercase transition shadow-lg">
                     Crear Cuenta
                 </button>
             </form>
@@ -126,15 +125,15 @@
         </div>
     </section>
 
-    <!-- ÁREA DE CONTENIDO PRINCIPAL -->
+    <!-- ÁREA PRINCIPAL -->
     <main id="app-content" class="flex-1 max-w-6xl w-full mx-auto p-4 hidden">
 
-        <!-- 1. EXPLORAR MERCADO -->
+        <!-- 1. MERCADO -->
         <section id="tab-explore" class="tab-content space-y-4">
             <div class="bg-miauberto-card p-4 rounded-2xl border border-slate-800 shadow-lg flex flex-col md:flex-row gap-3 justify-between items-center">
                 <div class="relative w-full md:w-96">
                     <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                    <input type="text" id="search-input" oninput="filterAndRenderProducts()" placeholder="Buscar productos, marcas y más..." class="w-full bg-slate-900 border border-slate-700 text-xs rounded-xl pl-9 pr-4 py-2.5 focus:outline-none focus:border-blue-500 text-slate-200">
+                    <input type="text" id="search-input" oninput="filterAndRenderProducts()" placeholder="Buscar productos..." class="w-full bg-slate-900 border border-slate-700 text-xs rounded-xl pl-9 pr-4 py-2.5 focus:outline-none focus:border-blue-500 text-slate-200">
                 </div>
                 
                 <div class="flex items-center gap-2 w-full md:w-auto justify-end">
@@ -151,7 +150,7 @@
             <div id="products-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"></div>
         </section>
 
-        <!-- 2. PUBLICAR ARTÍCULO (SOLO VENDEDORES) -->
+        <!-- 2. PUBLICAR ARTÍCULO -->
         <section id="tab-publish" class="tab-content hidden max-w-2xl mx-auto">
             <div class="bg-miauberto-card p-6 rounded-2xl border border-slate-800 shadow-xl">
                 <div class="flex items-center gap-3 mb-6 border-b border-slate-800 pb-4">
@@ -159,8 +158,8 @@
                         <i class="fa-solid fa-box-open"></i>
                     </div>
                     <div>
-                        <h2 class="text-lg font-bold text-slate-100">Publicar Nuevo Artículo</h2>
-                        <p class="text-xs text-slate-400">Añade tu producto al mercado de Miauberto</p>
+                        <h2 class="text-lg font-bold text-slate-100">Publicar Nuevo Artículo en Firestore</h2>
+                        <p class="text-xs text-slate-400">Sincronización automática a todos los usuarios</p>
                     </div>
                 </div>
 
@@ -193,15 +192,8 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Imagen del Producto</label>
-                        <div class="flex gap-2 mb-2">
-                            <input type="url" id="pub-img-url" placeholder="URL de la imagen (https://...)" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs focus:outline-none focus:border-blue-500">
-                            <label class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-xl px-4 flex items-center justify-center cursor-pointer text-xs font-medium transition">
-                                <i class="fa-solid fa-upload mr-1.5"></i> Subir
-                                <input type="file" id="pub-img-file" accept="image/*" onchange="convertImageToBase64(this)" class="hidden">
-                            </label>
-                        </div>
-                        <input type="hidden" id="pub-img-base64">
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Imagen del Producto (URL)</label>
+                        <input type="url" id="pub-img-url" placeholder="https://..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs focus:outline-none focus:border-blue-500">
                     </div>
 
                     <div>
@@ -209,29 +201,27 @@
                         <textarea id="pub-description" rows="3" placeholder="Detalles del artículo..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs focus:outline-none focus:border-blue-500"></textarea>
                     </div>
 
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl text-xs tracking-wider uppercase transition shadow-lg flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-paper-plane"></i> Publicar Artículo
+                    <button type="submit" id="pub-submit-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl text-xs tracking-wider uppercase transition shadow-lg flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Publicar en Firestore
                     </button>
                 </form>
             </div>
         </section>
 
-        <!-- 3. SECCIÓN DEL CARRITO & PAGO -->
+        <!-- 3. CARRITO & CHECKOUT -->
         <section id="tab-cart" class="tab-content hidden max-w-3xl mx-auto">
             <div class="bg-miauberto-card p-6 rounded-2xl border border-slate-800 shadow-xl space-y-6">
                 <div class="flex justify-between items-center border-b border-slate-800 pb-4">
                     <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
-                        <i class="fa-solid fa-cart-shopping text-blue-400"></i> Mi Carrito de Compras
+                        <i class="fa-solid fa-cart-shopping text-blue-400"></i> Mi Carrito
                     </h2>
                     <button onclick="clearCart()" class="text-xs text-red-400 hover:text-red-300 flex items-center gap-1">
                         <i class="fa-solid fa-trash-can"></i> Vaciar Carrito
                     </button>
                 </div>
 
-                <!-- Lista de artículos en carrito -->
                 <div id="cart-list" class="space-y-3 max-h-[360px] overflow-y-auto pr-1"></div>
 
-                <!-- Resumen y Acción de Pago -->
                 <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-3">
                     <div class="flex justify-between text-xs text-slate-400">
                         <span>Items seleccionados:</span>
@@ -251,7 +241,7 @@
 
     </main>
 
-    <!-- MODAL DE PAGO / CHECKOUT -->
+    <!-- MODAL DE PAGO -->
     <div id="modal-payment" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
         <div class="bg-miauberto-card border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
             <button onclick="closePaymentModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
@@ -259,48 +249,20 @@
             <h3 class="text-base font-bold text-slate-100 mb-1 flex items-center gap-2">
                 <i class="fa-solid fa-cash-register text-blue-400"></i> Confirmar y Pagar
             </h3>
-            <p class="text-xs text-slate-400 mb-4">Selecciona tu método de pago preferido</p>
+            <p class="text-xs text-slate-400 mb-4">Selecciona tu método de pago</p>
 
             <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 mb-4 flex justify-between items-center">
                 <span class="text-xs text-slate-400">Monto Total:</span>
                 <span id="modal-pay-amount" class="text-lg font-bold text-blue-400">$0.00</span>
             </div>
 
-            <div class="space-y-3 mb-6">
-                <label class="block text-xs font-semibold text-slate-300">Método de Pago</label>
-                <div class="grid grid-cols-3 gap-2">
-                    <button onclick="selectPaymentMethod('cash')" id="pay-cash-btn" class="pay-method-btn active bg-blue-600 border border-blue-500 p-3 rounded-xl text-center transition">
-                        <i class="fa-solid fa-money-bill-wave text-base block mb-1"></i>
-                        <span class="text-[10px] font-bold">Efectivo</span>
-                    </button>
-                    <button onclick="selectPaymentMethod('card')" id="pay-card-btn" class="pay-method-btn bg-slate-900 border border-slate-800 p-3 rounded-xl text-center transition">
-                        <i class="fa-solid fa-credit-card text-base block mb-1"></i>
-                        <span class="text-[10px] font-bold">Tarjeta</span>
-                    </button>
-                    <button onclick="selectPaymentMethod('qr')" id="pay-qr-btn" class="pay-method-btn bg-slate-900 border border-slate-800 p-3 rounded-xl text-center transition">
-                        <i class="fa-solid fa-qrcode text-base block mb-1"></i>
-                        <span class="text-[10px] font-bold">QR / Transfer</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Entrada de efectivo (cambio) -->
-            <div id="cash-input-group" class="space-y-2 mb-6">
-                <label class="block text-xs font-semibold text-slate-300">Paga con ($)</label>
-                <input type="number" step="0.01" id="cash-given" oninput="calculateChange()" placeholder="Ej. 200.00" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs focus:outline-none focus:border-blue-500">
-                <div class="flex justify-between text-xs text-slate-400 pt-1">
-                    <span>Cambio:</span>
-                    <span id="cash-change" class="font-bold text-emerald-400">$0.00</span>
-                </div>
-            </div>
-
-            <button onclick="confirmOrder()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition text-xs tracking-wider uppercase flex items-center justify-center gap-2">
+            <button onclick="confirmOrder()" id="pay-confirm-btn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition text-xs tracking-wider uppercase flex items-center justify-center gap-2">
                 <i class="fa-solid fa-check-circle"></i> Finalizar Compra
             </button>
         </div>
     </div>
 
-    <!-- MODAL PARA DETALLE DE PRODUCTO -->
+    <!-- MODAL DETALLE -->
     <div id="modal-detail" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
         <div class="bg-miauberto-card border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
             <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
@@ -308,138 +270,197 @@
         </div>
     </div>
 
-    <!-- Script de Lógica -->
-    <script>
-        const defaultUsers = [{ email: 'admin@miauberto.com', password: '123', name: 'Miauberto Admin', role: 'seller' }];
-        const initialProducts = [
-            { id: '1', title: 'Café Espresso Miauberto Nøde', price: 45.00, category: 'Cafetería', stock: 25, active: true, image: 'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?w=400', desc: 'Grano tostado especial selección felina.' },
-            { id: '2', title: 'Chaqueta Mezclilla Ruda Custom', price: 850.00, category: 'Ropa y Mezclilla', stock: 5, active: true, image: 'https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=400', desc: 'Chaqueta de mezclilla estilo Nøde ajustada.' },
-            { id: '3', title: 'Audífonos Studio Monitor Dark', price: 1200.00, category: 'Electrónica', stock: 8, active: true, image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400', desc: 'Excelente respuesta de frecuencia para podcasts.' },
-            { id: '4', title: 'Taza de Cerámica Nøde Café', price: 150.00, category: 'Accesorios', stock: 30, active: true, image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400', desc: 'Resistente al calor con grabado mate.' }
-        ];
+    <!-- SCRIPT DE FIREBASE MÓDULO -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        let users = JSON.parse(localStorage.getItem('miauberto_users')) || defaultUsers;
-        let currentUser = JSON.parse(localStorage.getItem('miauberto_current_user')) || null;
-        let products = JSON.parse(localStorage.getItem('miauberto_market_products')) || initialProducts;
-        let cart = JSON.parse(localStorage.getItem('miauberto_cart')) || [];
-        let selectedCategory = 'Todas';
-        let currentPayMethod = 'cash';
-
-        window.onload = function() {
-            saveData();
-            checkSession();
+        // Credenciales extraídas de tu consola de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCCXC6F5U7jCo3Jgg2ukPwK4Pk5zUsJyZk",
+            authDomain: "miauberto-pos.firebaseapp.com",
+            projectId: "miauberto-pos",
+            storageBucket: "miauberto-pos.firebasestorage.app",
+            messagingSenderId: "815497481304",
+            appId: "1:815497481304:web:ffd7e27860ca7bc1220e2d"
         };
 
-        function saveData() {
-            localStorage.setItem('miauberto_users', JSON.stringify(users));
-            localStorage.setItem('miauberto_market_products', JSON.stringify(products));
-            localStorage.setItem('miauberto_cart', JSON.stringify(cart));
-        }
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        /* --- AUTENTICACIÓN --- */
-        function toggleAuthMode(mode) {
-            const loginForm = document.getElementById('login-form');
-            const regForm = document.getElementById('register-form');
-            const title = document.getElementById('auth-title');
-            const subtitle = document.getElementById('auth-subtitle');
-            const switchText = document.getElementById('auth-switch-text');
+        let currentUserData = null;
+        let products = [];
+        let cart = JSON.parse(localStorage.getItem('miauberto_cart')) || [];
+        let selectedCategory = 'Todas';
 
-            if (mode === 'register') {
-                loginForm.classList.add('hidden');
-                regForm.classList.remove('hidden');
-                title.innerText = 'Crear Cuenta';
-                subtitle.innerText = 'Regístrate para comenzar a seleccionar artículos';
-                switchText.innerHTML = '¿Ya tienes una cuenta? <button onclick="toggleAuthMode(\'login\')" class="text-blue-400 font-bold hover:underline ml-1">Inicia sesión aquí</button>';
+        // Escuchador de sesión en tiempo real
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) {
+                    currentUserData = { uid: user.uid, ...userDoc.data() };
+                } else {
+                    currentUserData = { uid: user.uid, name: user.email.split('@')[0], role: 'buyer' };
+                }
+                showAppUI();
+                listenToProducts();
             } else {
-                regForm.classList.add('hidden');
-                loginForm.classList.remove('hidden');
-                title.innerText = 'Iniciar Sesión';
-                subtitle.innerText = 'Ingresa a Miauberto Market para ver y seleccionar artículos';
-                switchText.innerHTML = '¿No tienes una cuenta? <button onclick="toggleAuthMode(\'register\')" class="text-blue-400 font-bold hover:underline ml-1">Regístrate aquí</button>';
+                currentUserData = null;
+                showAuthUI();
             }
+        });
+
+        // Escuchar catálogo en Firestore en tiempo real
+        function listenToProducts() {
+            onSnapshot(collection(db, "products"), (snapshot) => {
+                products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                filterAndRenderProducts();
+            });
         }
 
-        function handleLogin(e) {
+        /* --- ACCIONES AUTENTICACIÓN --- */
+        window.handleLogin = async function(e) {
             e.preventDefault();
             const email = document.getElementById('login-email').value.trim();
             const pass = document.getElementById('login-password').value;
-            const user = users.find(u => u.email === email && u.password === pass);
-            if (user) {
-                currentUser = user;
-                localStorage.setItem('miauberto_current_user', JSON.stringify(currentUser));
-                document.getElementById('login-form').reset();
-                checkSession();
-            } else {
-                alert('Correo o contraseña incorrectos.');
+            const btn = document.getElementById('login-submit-btn');
+            
+            try {
+                btn.innerText = "Cargando...";
+                await signInWithEmailAndPassword(auth, email, pass);
+            } catch (err) {
+                alert("Error al iniciar sesión: " + err.message);
+            } finally {
+                btn.innerText = "Ingresar";
             }
-        }
+        };
 
-        function handleRegister(e) {
+        window.handleRegister = async function(e) {
             e.preventDefault();
             const name = document.getElementById('reg-name').value.trim();
             const email = document.getElementById('reg-email').value.trim();
             const pass = document.getElementById('reg-password').value;
             const role = document.getElementById('reg-role').value;
+            const btn = document.getElementById('reg-submit-btn');
 
-            if (users.some(u => u.email === email)) {
-                alert('El correo ya está registrado.');
-                return;
-            }
-
-            const newUser = { name, email, password: pass, role };
-            users.push(newUser);
-            currentUser = newUser;
-            saveData();
-            localStorage.setItem('miauberto_current_user', JSON.stringify(currentUser));
-            document.getElementById('register-form').reset();
-            checkSession();
-        }
-
-        function logout() {
-            currentUser = null;
-            localStorage.removeItem('miauberto_current_user');
-            checkSession();
-        }
-
-        function checkSession() {
-            const authSection = document.getElementById('auth-section');
-            const appContent = document.getElementById('app-content');
-            const mainNav = document.getElementById('main-nav');
-            const displayName = document.getElementById('user-display-name');
-
-            if (currentUser) {
-                authSection.classList.add('hidden');
-                appContent.classList.remove('hidden');
-                mainNav.classList.remove('hidden');
-                displayName.innerText = `Hola, ${currentUser.name}`;
-
-                document.querySelectorAll('.seller-only').forEach(el => {
-                    if (currentUser.role === 'seller') el.classList.remove('hidden');
-                    else el.classList.add('hidden');
+            try {
+                btn.innerText = "Creando cuenta...";
+                const res = await createUserWithEmailAndPassword(auth, email, pass);
+                await setDoc(doc(db, "users", res.user.uid), {
+                    name, email, role, createdAt: new Date()
                 });
-
-                renderCategoryBar();
-                filterAndRenderProducts();
-                updateCartUI();
-                switchTab('explore');
-            } else {
-                appContent.classList.add('hidden');
-                mainNav.classList.add('hidden');
-                authSection.classList.remove('hidden');
+            } catch (err) {
+                alert("Error al registrarse: " + err.message);
+            } finally {
+                btn.innerText = "Crear Cuenta";
             }
+        };
+
+        window.handleLogout = function() {
+            signOut(auth);
+        };
+
+        function showAppUI() {
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('app-content').classList.remove('hidden');
+            document.getElementById('main-nav').classList.remove('hidden');
+            document.getElementById('user-display-name').innerText = `Hola, ${currentUserData.name}`;
+
+            document.querySelectorAll('.seller-only').forEach(el => {
+                if (currentUserData.role === 'seller') el.classList.remove('hidden');
+                else el.classList.add('hidden');
+            });
+
+            renderCategoryBar();
+            updateCartUI();
+            switchTab('explore');
         }
 
-        /* --- NAVEGACIÓN --- */
-        function switchTab(tabId) {
+        function showAuthUI() {
+            document.getElementById('app-content').classList.add('hidden');
+            document.getElementById('main-nav').classList.add('hidden');
+            document.getElementById('auth-section').classList.remove('hidden');
+        }
+
+        /* --- PUBLICACIÓN EN FIRESTORE --- */
+        window.handlePublish = async function(e) {
+            e.preventDefault();
+            const title = document.getElementById('pub-title').value.trim();
+            const price = parseFloat(document.getElementById('pub-price').value);
+            const stock = parseInt(document.getElementById('pub-stock').value);
+            const category = document.getElementById('pub-category').value;
+            const image = document.getElementById('pub-img-url').value.trim() || 'https://via.placeholder.com/300?text=Miauberto+Market';
+            const desc = document.getElementById('pub-description').value.trim();
+            const btn = document.getElementById('pub-submit-btn');
+
+            try {
+                btn.innerText = "Guardando...";
+                await addDoc(collection(db, "products"), {
+                    title, price, stock, category, image, desc,
+                    active: true,
+                    sellerUid: currentUserData.uid,
+                    createdAt: new Date()
+                });
+                document.getElementById('publish-form').reset();
+                alert("¡Artículo publicado en la nube de Firestore!");
+                switchTab('explore');
+            } catch(err) {
+                alert("Error al publicar: " + err.message);
+            } finally {
+                btn.innerText = "Publicar en Firestore";
+            }
+        };
+
+        /* --- CARRITO Y PAGO CON FIRESTORE --- */
+        window.confirmOrder = async function() {
+            const btn = document.getElementById('pay-confirm-btn');
+            try {
+                btn.innerText = "Procesando...";
+                for (let item of cart) {
+                    const p = products.find(prod => prod.id === item.id);
+                    if (p) {
+                        const newStock = Math.max(0, p.stock - item.qty);
+                        await updateDoc(doc(db, "products", item.id), { stock: newStock });
+                    }
+                }
+                cart = [];
+                localStorage.removeItem('miauberto_cart');
+                updateCartUI();
+                closePaymentModal();
+                alert('¡Compra completada con éxito! El inventario ha sido actualizado en la nube.');
+                switchTab('explore');
+            } catch(err) {
+                alert("Error al procesar pedido: " + err.message);
+            } finally {
+                btn.innerText = "Finalizar Compra";
+            }
+        };
+
+        // UI Helpers
+        window.switchTab = function(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active', 'bg-blue-600', 'text-white'));
-            
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
             const btn = document.getElementById(`tab-${tabId}-btn`);
             if (btn) btn.classList.add('active', 'bg-blue-600', 'text-white');
-        }
+        };
 
-        /* --- MERCADO Y CATÁLOGO --- */
+        window.toggleAuthMode = function(mode) {
+            if (mode === 'register') {
+                document.getElementById('login-form').classList.add('hidden');
+                document.getElementById('register-form').classList.remove('hidden');
+                document.getElementById('auth-title').innerText = 'Crear Cuenta';
+                document.getElementById('auth-switch-text').innerHTML = '¿Ya tienes cuenta? <button onclick="toggleAuthMode(\'login\')" class="text-blue-400 font-bold hover:underline">Inicia sesión</button>';
+            } else {
+                document.getElementById('register-form').classList.add('hidden');
+                document.getElementById('login-form').classList.remove('hidden');
+                document.getElementById('auth-title').innerText = 'Iniciar Sesión';
+                document.getElementById('auth-switch-text').innerHTML = '¿No tienes cuenta? <button onclick="toggleAuthMode(\'register\')" class="text-blue-400 font-bold hover:underline">Regístrate</button>';
+            }
+        };
+
         function renderCategoryBar() {
             const categories = ['Todas', 'Cafetería', 'Ropa y Mezclilla', 'Electrónica', 'Accesorios', 'Otros'];
             const bar = document.getElementById('category-bar');
@@ -450,19 +471,19 @@
             `).join('');
         }
 
-        function setCategory(cat) {
+        window.setCategory = function(cat) {
             selectedCategory = cat;
             renderCategoryBar();
             filterAndRenderProducts();
-        }
+        };
 
-        function filterAndRenderProducts() {
+        window.filterAndRenderProducts = function() {
             const query = document.getElementById('search-input').value.toLowerCase();
             const sort = document.getElementById('sort-select').value;
 
             let filtered = products.filter(p => {
                 const matchesCat = selectedCategory === 'Todas' || p.category === selectedCategory;
-                const matchesQuery = p.title.toLowerCase().includes(query) || p.desc.toLowerCase().includes(query);
+                const matchesQuery = p.title.toLowerCase().includes(query) || (p.desc && p.desc.toLowerCase().includes(query));
                 return p.active && matchesCat && matchesQuery;
             });
 
@@ -471,7 +492,7 @@
 
             const grid = document.getElementById('products-grid');
             if (filtered.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-12 text-center text-slate-500 text-xs"><i class="fa-solid fa-box-open text-3xl mb-2"></i><p>No se encontraron productos</p></div>`;
+                grid.innerHTML = `<div class="col-span-full py-12 text-center text-slate-500 text-xs"><i class="fa-solid fa-box-open text-3xl mb-2"></i><p>No hay productos en esta categoría</p></div>`;
                 return;
             }
 
@@ -489,21 +510,20 @@
                         </div>
                     </div>
                     <div class="p-3 pt-0 flex gap-1.5">
-                        <button onclick="openDetail('${p.id}')" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-1.5 rounded-xl text-[11px] font-semibold transition">Detalles</button>
-                        <button onclick="addToCart('${p.id}')" class="bg-blue-600 hover:bg-blue-500 text-white p-2.5 rounded-xl text-xs transition shadow-md"><i class="fa-solid fa-cart-plus"></i></button>
+                        <button onclick="addToCart('${p.id}')" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-md">
+                            <i class="fa-solid fa-cart-plus"></i> Agregar
+                        </button>
                     </div>
                 </div>
             `).join('');
-        }
+        };
 
-        /* --- LÓGICA DEL CARRITO DE COMPRAS --- */
-        function addToCart(id) {
+        window.addToCart = function(id) {
             const p = products.find(item => item.id === id);
             if (!p || p.stock <= 0) {
                 alert('Producto agotado');
                 return;
             }
-
             const item = cart.find(c => c.id === id);
             if (item) {
                 if (item.qty < p.stock) item.qty++;
@@ -511,37 +531,9 @@
             } else {
                 cart.push({ id: p.id, title: p.title, price: p.price, image: p.image, qty: 1 });
             }
-            saveData();
+            localStorage.setItem('miauberto_cart', JSON.stringify(cart));
             updateCartUI();
-        }
-
-        function changeCartQty(id, delta) {
-            const item = cart.find(c => c.id === id);
-            const p = products.find(prod => prod.id === id);
-            if (item && p) {
-                item.qty += delta;
-                if (item.qty <= 0) {
-                    cart = cart.filter(c => c.id !== id);
-                } else if (item.qty > p.stock) {
-                    item.qty = p.stock;
-                    alert('Límite de stock alcanzado');
-                }
-            }
-            saveData();
-            updateCartUI();
-        }
-
-        function removeFromCart(id) {
-            cart = cart.filter(c => c.id !== id);
-            saveData();
-            updateCartUI();
-        }
-
-        function clearCart() {
-            cart = [];
-            saveData();
-            updateCartUI();
-        }
+        };
 
         function updateCartUI() {
             const badge = document.getElementById('cart-badge');
@@ -577,113 +569,35 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-3">
-                        <div class="flex items-center bg-slate-800 rounded-lg border border-slate-700">
-                            <button onclick="changeCartQty('${item.id}', -1)" class="px-2 py-1 text-slate-300 hover:bg-slate-700 rounded-l-lg font-bold">-</button>
-                            <span class="px-2 font-bold text-slate-100">${item.qty}</span>
-                            <button onclick="changeCartQty('${item.id}', 1)" class="px-2 py-1 text-slate-300 hover:bg-slate-700 rounded-r-lg font-bold">+</button>
-                        </div>
-                        <span class="font-extrabold text-slate-100 w-16 text-right">$${(item.price * item.qty).toFixed(2)}</span>
+                        <span class="font-extrabold text-slate-100">$${(item.price * item.qty).toFixed(2)}</span>
                         <button onclick="removeFromCart('${item.id}')" class="text-red-400 hover:text-red-300 p-1"><i class="fa-solid fa-xmark"></i></button>
                     </div>
                 </div>
             `).join('');
         }
 
-        /* --- PROCESO DE PAGO Y COBRO --- */
-        function openPaymentModal() {
-            if (cart.length === 0) {
-                alert('Agrega productos al carrito antes de pagar.');
-                return;
-            }
+        window.removeFromCart = function(id) {
+            cart = cart.filter(c => c.id !== id);
+            localStorage.setItem('miauberto_cart', JSON.stringify(cart));
+            updateCartUI();
+        };
+
+        window.clearCart = function() {
+            cart = [];
+            localStorage.removeItem('miauberto_cart');
+            updateCartUI();
+        };
+
+        window.openPaymentModal = function() {
+            if (cart.length === 0) return alert('El carrito está vacío');
             const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
             document.getElementById('modal-pay-amount').innerText = `$${totalPrice.toFixed(2)}`;
             document.getElementById('modal-payment').classList.remove('hidden');
-            selectPaymentMethod('cash');
-        }
+        };
 
-        function closePaymentModal() {
+        window.closePaymentModal = function() {
             document.getElementById('modal-payment').classList.add('hidden');
-        }
-
-        function selectPaymentMethod(method) {
-            currentPayMethod = method;
-            document.querySelectorAll('.pay-method-btn').forEach(btn => {
-                btn.classList.remove('active', 'bg-blue-600', 'border-blue-500');
-                btn.classList.add('bg-slate-900', 'border-slate-800');
-            });
-
-            const selectedBtn = document.getElementById(`pay-${method}-btn`);
-            selectedBtn.classList.add('active', 'bg-blue-600', 'border-blue-500');
-
-            const cashGroup = document.getElementById('cash-input-group');
-            if (method === 'cash') cashGroup.classList.remove('hidden');
-            else cashGroup.classList.add('hidden');
-        }
-
-        function calculateChange() {
-            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            const cashGiven = parseFloat(document.getElementById('cash-given').value) || 0;
-            const change = cashGiven - totalPrice;
-            
-            const changeSpan = document.getElementById('cash-change');
-            if (change >= 0) {
-                changeSpan.innerText = `$${change.toFixed(2)}`;
-                changeSpan.classList.remove('text-red-400');
-                changeSpan.classList.add('text-emerald-400');
-            } else {
-                changeSpan.innerText = `Falta $${Math.abs(change).toFixed(2)}`;
-                changeSpan.classList.remove('text-emerald-400');
-                changeSpan.classList.add('text-red-400');
-            }
-        }
-
-        function confirmOrder() {
-            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-
-            if (currentPayMethod === 'cash') {
-                const cashGiven = parseFloat(document.getElementById('cash-given').value) || 0;
-                if (cashGiven < totalPrice) {
-                    alert('El efectivo entregado es menor al total.');
-                    return;
-                }
-            }
-
-            // Descontar inventario
-            cart.forEach(item => {
-                const p = products.find(prod => prod.id === item.id);
-                if (p) p.stock -= item.qty;
-            });
-
-            saveData();
-            clearCart();
-            filterAndRenderProducts();
-            closePaymentModal();
-            alert('¡Pago procesado con éxito! Gracias por tu compra en Miauberto Market.');
-            switchTab('explore');
-        }
-
-        function openDetail(id) {
-            const p = products.find(item => item.id === id);
-            if (!p) return;
-
-            document.getElementById('modal-content').innerHTML = `
-                <img src="${p.image}" class="w-full h-48 object-cover rounded-xl bg-slate-900 mb-4 border border-slate-800">
-                <span class="bg-blue-900/60 text-blue-300 text-[10px] font-bold px-2.5 py-1 rounded-full border border-blue-700 uppercase tracking-wider">${p.category}</span>
-                <h3 class="text-lg font-bold text-slate-100 mt-2 mb-1">${p.title}</h3>
-                <p class="text-slate-400 text-xs mb-4 leading-relaxed">${p.desc}</p>
-                <div class="flex justify-between items-center border-t border-slate-800 pt-4">
-                    <span class="text-xl font-extrabold text-blue-400">$${p.price.toFixed(2)}</span>
-                    <button onclick="addToCart('${p.id}'); closeModal();" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition">
-                        Agregar al Carrito
-                    </button>
-                </div>
-            `;
-            document.getElementById('modal-detail').classList.remove('hidden');
-        }
-
-        function closeModal() {
-            document.getElementById('modal-detail').classList.add('hidden');
-        }
+        };
     </script>
 </body>
 </html>
