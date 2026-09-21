@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build Android App Bundle & APK (Play Store)
 
 on:
   push:
@@ -21,16 +21,29 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Setup Gradle
+    - name: Setup Gradle 8.5
       uses: gradle/actions/setup-gradle@v3
       with:
         gradle-version: '8.5'
 
+    # 1. Compila el archivo APK de depuración
     - name: Build Debug APK
       run: gradle assembleDebug --stacktrace
 
+    # 2. Compila el archivo AAB (Android App Bundle) para Google Play Store
+    - name: Build Release Bundle (AAB)
+      run: gradle bundleRelease --stacktrace
+
+    # 3. Sube el APK a la sección de Artifacts
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Miauberto-POS-App
+        name: Miauberto-POS-Debug-APK
         path: app/build/outputs/apk/debug/app-debug.apk
+
+    # 4. Sube el AAB a la sección de Artifacts
+    - name: Upload AAB Artifact (Play Store Ready)
+      uses: actions/upload-artifact@v4
+      with:
+        name: Miauberto-POS-Release-AAB
+        path: app/build/outputs/bundle/release/app-release.aab
